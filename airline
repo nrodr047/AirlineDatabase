@@ -1,0 +1,364 @@
+-- Database: airline
+
+-- DROP DATABASE airline;
+
+CREATE DATABASE airline
+    WITH 
+    OWNER = postgres
+    ENCODING = 'UTF8'
+    LC_COLLATE = 'English_United States.1252'
+    LC_CTYPE = 'English_United States.1252'
+    TABLESPACE = pg_default
+    CONNECTION LIMIT = -1;
+
+
+drop 
+  table if exists PLANE_MODEL_CAN_FLY;
+drop 
+  table if exists BOOKED_ON;
+drop 
+  table if exists ASSIGNED_TO;
+drop 
+  table if exists DEPARTURE;
+drop 
+  table if exists AIRCRAFT;
+drop 
+  table if exists PLANE_TYPE;
+drop 
+  table if exists PILOT;
+drop 
+  table if exists FLIGHT;
+drop 
+  table if exists EMPLOYEE;
+drop 
+  table if exists CUSTOMER;
+CREATE TABLE CUSTOMER (
+  Named VARCHAR(15) NOT NULL, 
+  c_Address VARCHAR(50) NOT NULL, 
+  c_Phone VARCHAR(15), 
+  PRIMARY KEY (Named)
+);
+CREATE TABLE EMPLOYEE (
+  Named VARCHAR(15) NOT NULL, 
+  Salary INT, 
+  Emp_No INT UNIQUE NOT NULL, 
+  PRIMARY KEY (Named)
+);
+CREATE TABLE PILOT (
+  Emp_No INT NOT NULL, 
+  p_Name VARCHAR(15) NOT NULL, 
+  license_date DATE NOT NULL, 
+  can_fly VARCHAR(15) NOT NULL, 
+  FOREIGN KEY(Emp_No) REFERENCES EMPLOYEE(Emp_No)
+);
+CREATE TABLE PLANE_TYPE (
+  Manufacturer VARCHAR(15) NOT NULL, 
+  Model_No VARCHAR(15) NOT NULL, 
+  PRIMARY KEY(Model_No)
+);
+CREATE TABLE AIRCRAFT (
+  Serial_No VARCHAR(5) UNIQUE NOT NULL, 
+  Model_No VARCHAR(15) NOT NULL, 
+  PRIMARY KEY (Serial_No, Model_No), 
+  FOREIGN KEY (Model_No) REFERENCES PLANE_TYPE(Model_NO)
+);
+CREATE TABLE FLIGHT (
+  Flight_Num INT NOT NULL, 
+  Origin VARCHAR(3), 
+  Dest VARCHAR(3), 
+  Dep_Time VARCHAR(5), 
+  Arr_Time VARCHAR(5), 
+  PRIMARY KEY(Flight_Num)
+);
+CREATE TABLE DEPARTURE (
+  Departure_date DATE, 
+  Flight_Num INT, 
+  Serial_No VARCHAR(5), 
+  PRIMARY KEY(Departure_Date, Flight_Num), 
+  FOREIGN KEY (Flight_Num) REFERENCES FLIGHT(Flight_Num), 
+  FOREIGN KEY (Serial_No) REFERENCES AIRCRAFT(Serial_No)
+);
+CREATE TABLE BOOKED_ON (
+  Named VARCHAR(15) NOT NULL, 
+  Departure_date DATE NOT NULL, 
+  Flight_Num INT NOT NULL, 
+  PRIMARY KEY(
+    Named, Departure_date, Flight_Num
+  ), 
+  FOREIGN KEY(Departure_date, Flight_Num) REFERENCES DEPARTURE(Departure_date, Flight_Num)
+);
+CREATE TABLE ASSIGNED_TO (
+  Emp_No INT NOT NULL, 
+  Departure_date DATE NOT NULL, 
+  Flight_Num INT NOT NULL, 
+  PRIMARY KEY (
+    Emp_No, Departure_date, Flight_Num
+  ), 
+  FOREIGN KEY (Emp_No) REFERENCES EMPLOYEE(Emp_No), 
+  FOREIGN KEY (Departure_date, Flight_Num) REFERENCES DEPARTURE(Departure_date, Flight_Num)
+);
+CREATE TABLE PLANE_MODEL_CAN_FLY (
+  Emp_No INT NOT NULL, 
+  Model_No VARCHAR(15) NOT NULL, 
+  PRIMARY KEY (Emp_No, Model_No), 
+  FOREIGN KEY (Emp_No) REFERENCES EMPLOYEE(Emp_No), 
+  FOREIGN KEY (Model_No) REFERENCES PLANE_TYPE(Model_No)
+);
+INSERT INTO CUSTOMER 
+VALUES 
+  (
+    'Rose Parker', '123 Thomas St. Toledo,OH 57556', 
+    '801-556-2239'
+  ), 
+  (
+    'Jessica Jones', '234 Pines St. Los Angeles,CA 34898', 
+    '801-552-2943'
+  ), 
+  (
+    'John Peters', '345 Star St. Raleigh,NC 79999', 
+    '801-393-2230'
+  ), 
+  (
+    'Bryan Brown', '435 Palm St. Miami,FL 30533', 
+    '801-933-2320'
+  ), 
+  (
+    'Mark Williams', '348 Andrew St. Fort Lauderdale,FL 33318', 
+    '801-343-2320'
+  ), 
+  (
+    'Carol Phillips', '395 Pine St. Omaha,NE 88899', 
+    '801-323-2320'
+  ), 
+  (
+    'Madison Parker', '285 Diamond St. San Diego,CA 99977', 
+    '801-493-2203'
+  ), 
+  (
+    'Justin Colano', '223 Easy St. Tampa,FL 66798', 
+    '801-193-2320'
+  ), 
+  (
+    'Claudia Stevens', '775 Main St. Staint Louis,MO 99878', 
+    '801-303-2222'
+  ), 
+  (
+    'Arthur Hooper', '456 Rose St. Las Vegas,NV 17878', 
+    '313-912-2101'
+  ), 
+  (
+    'Sergio Ryan', '567 Spruce St. Lincoln,NE 87898', 
+    '801-228-6729'
+  ), 
+  (
+    'Julia Maverick', '678 Tulip St. Raleigh,NC 79999', 
+    NULL
+  ), 
+  (
+    'Brandon Gordon', '789 First St. Miami,FL 30533', 
+    NULL
+  );
+INSERT INTO EMPLOYEE 
+VALUES 
+  ('John Jones', 90000.00, 1001), 
+  ('Albert Peters', 85000.00, 1002), 
+  ('Carl Rowe', 115000.00, 1003), 
+  ('Phillips', 25000.00, 1004), 
+  ('William Gates', 50000.00, 1005), 
+  ('Robert Clark', 45000.00, 1006), 
+  ('Joseph Warnock', 50000.00, 1007), 
+  ('Lisa Stuart', 75000.00, 1008);
+INSERT INTO PILOT 
+VALUES 
+  (
+    1001, 'John Jones', '1999-06-01', 
+    'B727'
+  ), 
+  (
+    1001, 'John Jones', '2000-08-14', 
+    'B474'
+  ), 
+  (
+    1001, 'John Jones', '2005-04-20', 
+    'DC10'
+  ), 
+  (
+    1002, 'Albert Peters', '2010-09-25', 
+    'DC9'
+  ), 
+  (
+    1002, 'Albert Peters', '2005-04-20', 
+    'A310'
+  ), 
+  (
+    1002, 'Albert Peters', '2003-07-17', 
+    'B757'
+  ), 
+  (
+    1002, 'Albert Peters', '2012-05-28', 
+    'A320'
+  ), 
+  (
+    1002, 'Albert Peters', '2015-12-01', 
+    'B727'
+  ), 
+  (
+    1003, 'Carl Rowe', '2013-01-25', 'A310'
+  ), 
+  (
+    1003, 'Carl Rowe', '2015-06-05', 'DC9'
+  );
+INSERT INTO PLANE_TYPE 
+VALUES 
+  ('Boeing', 'B727'), 
+  ('Boeing', 'B747'), 
+  ('Boeing', 'B757'), 
+  ('MD', 'DC9'), 
+  ('MD', 'DC10'), 
+  ('Airbus', 'A310'), 
+  ('Airbus', 'A320'), 
+  ('Airbus', 'A330'), 
+  ('Airbus', 'A340');
+INSERT INTO AIRCRAFT 
+VALUES 
+  ('B1110', 'B727'), 
+  ('B1325', 'B727'), 
+  ('B1088', 'B747'), 
+  ('B1419', 'B747'), 
+  ('B2244', 'B757'), 
+  ('B9377', 'B757'), 
+  ('D2101', 'DC9'), 
+  ('D2216', 'DC9'), 
+  ('D2333', 'DC9'), 
+  ('D2429', 'DC9'), 
+  ('D2530', 'DC10'), 
+  ('A7099', 'A310'), 
+  ('A8055', 'A320');
+INSERT INTO FLIGHT 
+VALUES 
+  (
+    100, 'SLC', 'BOS', '08:00', '17:50'
+  ), 
+  (
+    206, 'DFW', 'STL', '09:00', '11:40'
+  ), 
+  (
+    334, 'ORD', 'MIA', '12:00', '14:14'
+  ), 
+  (
+    335, 'MIA', 'ORD', '15:00', '17:14'
+  ), 
+  (
+    336, 'ORD', 'MIA', '18:00', '20:14'
+  ), 
+  (
+    337, 'MIA', 'ORD', '20:30', '23:53'
+  ), 
+  (
+    121, 'STL', 'SLC', '07:00', '09:13'
+  ), 
+  (
+    330, 'JFK', 'YYV', '16:00', '18:53'
+  ), 
+  (
+    991, 'BOS', 'ORD', '17:00', '18:22'
+  ), 
+  (
+    394, 'DFW', 'MIA', '19:00', '21:30'
+  ), 
+  (
+    395, 'MIA', 'DFW', '21:00', '23:43'
+  ), 
+  (
+    449, 'CDG', 'DEN', '10:00', '19:29'
+  ), 
+  (
+    930, 'YYV', 'DCA', '13:00', '16:10'
+  ), 
+  (
+    931, 'DCA', 'YYV', '17:00', '18:10'
+  ), 
+  (
+    932, 'DCA', 'YYV', '18:00', '19:10'
+  ), 
+  (
+    112, 'DCA', 'DEN', '14:00', '18:07'
+  );
+INSERT INTO DEPARTURE 
+VALUES 
+  ('2018-10-31', 100, 'B1110'), 
+  ('2018-10-31', 112, NULL), 
+  ('2018-10-31', 206, 'D2530'), 
+  ('2018-10-31', 334, NULL), 
+  ('2018-10-31', 335, NULL), 
+  ('2018-10-31', 337, 'D2216'), 
+  ('2018-10-31', 449, NULL), 
+  ('2018-11-01', 100, 'D2530'), 
+  ('2018-11-01', 112, 'A8055'), 
+  ('2018-11-01', 206, NULL), 
+  ('2018-11-01', 334, NULL), 
+  ('2018-11-01', 395, NULL), 
+  ('2018-11-01', 991, 'B1325');
+INSERT INTO BOOKED_ON 
+VALUES 
+  ('Rose Parker', '2018-10-31', 100), 
+  ('Bryan Brown', '2018-10-31', 206), 
+  (
+    'Arthur Hooper', '2018-10-31', 334
+  ), 
+  ('Sergio Ryan', '2018-10-31', 449), 
+  (
+    'Brandon Gordon', '2018-11-01', 991
+  ), 
+  (
+    'Madison Parker', '2018-11-01', 991
+  ), 
+  (
+    'Mark Williams', '2018-11-01', 100
+  ), 
+  (
+    'Carol Phillips', '2018-11-01', 100
+  ), 
+  (
+    'Justin Colano', '2018-10-31', 449
+  ), 
+  (
+    'Claudia Stevens', '2018-10-31', 
+    449
+  ), 
+  (
+    'Julia Maverick', '2018-11-01', 991
+  ), 
+  ('John Peters', '2018-11-01', 100);
+INSERT INTO ASSIGNED_TO 
+VALUES 
+  (1001, '2018-10-31', 100), 
+  (1003, '2018-10-31', 100), 
+  (1004, '2018-10-31', 100), 
+  (1002, '2018-10-31', 206), 
+  (1007, '2018-10-31', 206), 
+  (1003, '2018-10-31', 337), 
+  (1004, '2018-10-31', 337), 
+  (1005, '2018-10-31', 337), 
+  (1006, '2018-10-31', 337), 
+  (1001, '2018-11-01', 100), 
+  (1005, '2018-11-01', 100), 
+  (1007, '2018-11-01', 100), 
+  (1003, '2018-11-01', 991), 
+  (1006, '2018-11-01', 991), 
+  (1007, '2018-11-01', 991), 
+  (1002, '2018-11-01', 112), 
+  (1004, '2018-11-01', 112), 
+  (1008, '2018-11-01', 112);
+INSERT INTO PLANE_MODEL_CAN_FLY 
+VALUES 
+  (1001, 'B727'), 
+  (1001, 'B747'), 
+  (1001, 'DC10'), 
+  (1002, 'DC9'), 
+  (1002, 'A310'), 
+  (1002, 'B757'), 
+  (1002, 'A320'), 
+  (1002, 'B727'), 
+  (1003, 'A310'), 
+  (1003, 'DC9');
